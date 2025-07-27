@@ -155,8 +155,25 @@ Agent-LuoTianyi/
 ### 环境要求
 - Python 3.8+
 - 硅基流动平台API密钥
+- 内存：至少 4GB RAM
+- 存储：至少 2GB 可用空间
 
-### 安装步骤
+### 快速启动
+
+**Windows用户：**
+```cmd
+# 双击运行快速启动脚本
+setup.bat
+```
+
+**Linux/Mac用户：**
+```bash
+# 运行快速启动脚本
+chmod +x setup.sh
+./setup.sh
+```
+
+### 手动安装步骤
 
 1. **克隆项目**
 ```bash
@@ -164,28 +181,49 @@ git clone https://github.com/your-username/Agent-LuoTianyi.git
 cd Agent-LuoTianyi
 ```
 
-2. **安装依赖**
+2. **创建虚拟环境**
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# 或
+venv\Scripts\activate  # Windows
+```
+
+3. **安装依赖**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **配置环境**
+4. **配置环境变量**
 ```bash
-# 复制配置模板
+# 复制模板文件
+cp .env.template .env
 cp config/config.yaml.template config/config.yaml
 
-# 编辑配置文件，添加API密钥
-# SILICONFLOW_API_KEY: "your-api-key-here"
+# 编辑配置文件，填入您的API密钥
 ```
 
-4. **初始化知识库**
+5. **运行示例**
 ```bash
-python scripts/setup_knowledge.py
+# 命令行聊天演示
+python examples/chat_demo.py
+
+# Web界面演示
+python examples/web_demo.py
+
+# 知识库构建演示
+python examples/knowledge_demo.py
 ```
 
-5. **启动服务**
+### Docker部署
+
 ```bash
-python examples/basic_chat.py
+# 使用Docker Compose快速部署
+docker-compose up -d
+
+# 或单独构建镜像
+docker build -t agent-luotianyi .
+docker run -p 8000:8000 agent-luotianyi
 ```
 
 ### 基础使用

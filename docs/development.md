@@ -9,6 +9,7 @@
 ```bash
 python --version
 ```
+目前开发版本为3.10，因此模块的可用性仅在3.10及以上版本得到保证。
 
 #### 虚拟环境（推荐）
 ```bash
@@ -21,6 +22,16 @@ venv\Scripts\activate
 # Linux/Mac
 source venv/bin/activate
 ```
+也可以使用conda环境：
+```bash
+
+# 创建conda环境
+conda create -n venv python=3.8
+
+# 激活conda环境
+conda activate venv
+```
+
 
 ### 2. 依赖安装
 
@@ -45,6 +56,16 @@ cp .env.template .env
 SILICONFLOW_API_KEY=your_siliconflow_api_key_here
 NEO4J_PASSWORD=your_neo4j_password_here
 ```
+
+对于Windows用户，建议使用PowerShell或Git Bash来运行命令行操作，以避免路径问题。使用如下方案配置环境变量：
+1. 搜索编辑系统环境变量；
+2. 在跳出的窗口中点击“环境变量”；
+3. 如果仅需要为当前用户配置，则在“用户变量”中点击“新建”，输入变量名和变量值。反之，如果需要为所有用户配置，则在“系统变量”中点击“新建”，输入变量名和变量值；
+   - 变量名：`SILICONFLOW_API_KEY`，变量值为自己的API KEY；
+   - 变量名：`NEO4J_PASSWORD`，变量值为自己的Neo4j密码；
+4. 点击“确定”保存。
+5. 重启命令行窗口（可能需要重启vscode）以使环境变量生效。
+6. 在命令行中使用 `echo $SILICONFLOW_API_KEY` 和 `echo $NEO4J_PASSWORD` 来验证环境变量是否设置成功。
 
 ## 核心架构说明
 
