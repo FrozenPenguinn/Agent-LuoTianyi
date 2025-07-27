@@ -8,7 +8,6 @@ basic_info:
   birthday: "7月12日"
   height: "156cm"
   character_color: "#66CCFF"  # 天蓝色
-  voice_bank: "Vocaloid Chinese"
 
 # ===== 性格特征 =====
 personality:

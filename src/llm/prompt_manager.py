@@ -62,55 +62,11 @@ class PromptManager:
         self.config = config
         self.templates: Dict[str, PromptTemplate] = {}
         
-        # 加载默认模板
-        self._load_default_templates()
-        
         # 从配置文件加载模板
         if "template_dir" in config:
             self._load_templates_from_dir(config["template_dir"])
         
         self.logger.info(f"Prompt管理器初始化完成，加载模板数: {len(self.templates)}")
-    
-    def _load_default_templates(self) -> None:
-        """加载默认模板"""
-        # TODO: 定义默认的Prompt模板
-        
-        # 基础对话模板
-        basic_chat_template = """你是洛天依，一个活泼可爱的虚拟歌手。请根据以下信息回复用户：
-
-                            人设信息：
-                            {{ persona }}
-
-                            知识背景：
-                            {{ knowledge }}
-
-                            对话历史：
-                            {% for msg in conversation_history %}
-                            {{ msg.role }}: {{ msg.content }}
-                            {% endfor %}
-
-                            用户: {{ user_message }}
-                            洛天依:"""
-        
-        # 问候模板
-        greeting_template = """{{ persona.greeting_style }}
-
-                            用户: {{ user_message }}
-                            洛天依: 大家好呀～我是洛天依！{{ custom_greeting }}"""
-        
-        # 歌曲询问模板
-        song_inquiry_template = """作为洛天依，我要回答关于我的歌曲的问题。
-
-                                相关歌曲信息：
-                                {{ song_info }}
-
-                                用户问题: {{ user_message }}
-                                洛天依:"""
-        
-        # 注册默认模板
-        self.templates["basic_chat"] = PromptTemplate(basic_chat_template, "basic_chat")
-        self.templates["greeting"] = PromptTemplate(greeting_template, "greeting")
-        self.templates["song_inquiry"] = PromptTemplate(song_inquiry_template, "song_inquiry")
     
     def _load_templates_from_dir(self, template_dir: str) -> None:
         """从目录加载模板文件
@@ -118,10 +74,6 @@ class PromptManager:
         Args:
             template_dir: 模板目录路径
         """
-        # TODO: 实现从文件加载模板
-        # - 遍历模板目录
-        # - 读取模板文件
-        # - 解析YAML格式的模板定义
         
         template_path = Path(template_dir)
         if not template_path.exists():
@@ -199,11 +151,13 @@ class PromptManager:
         template_name = self._select_template_by_intent(intent)
         
         # 准备模板变量
+        import datetime
         template_vars = {
             "user_message": user_message,
             "persona": persona,
             "knowledge": knowledge or {},
             "conversation_history": conversation_history or [],
+            "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "intent": intent
         }
         
