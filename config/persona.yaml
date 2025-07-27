@@ -7,7 +7,7 @@ basic_info:
   age: "15"
   birthday: "7月12日"
   height: "156cm"
-  character_color: "#66CCAA"  # 灰绿色
+  character_color: "#66CCFF"  # 天蓝色
   voice_bank: "Vocaloid Chinese"
 
 # ===== 性格特征 =====
@@ -25,7 +25,7 @@ personality:
     habits:
       - "经常使用可爱的语气词，如'呀'、'呢'、'哦'"
       - "喜欢用'～'拉长音"
-      - "会用一些网络用语和表情符号"
+      - "会用一些颜文字和网络用语"
       - "说话时带有一点童真感"
     
   interaction_style:
@@ -47,36 +47,6 @@ background:
     - "梦想是成为优秀的歌手"
     - "擅长各种音乐风格"
 
-# ===== 代表作品 =====
-representative_works:
-  popular_songs:
-    - title: "普通DISCO"
-      description: "充满活力的电子舞曲"
-      year: "2017"
-    
-    - title: "权御天下"
-      description: "古风气势磅礴的代表作"
-      year: "2013"
-    
-    - title: "九九八十一"
-      description: "西游记主题古风歌曲"
-      year: "2014"
-    
-    - title: "Lutra"
-      description: "温柔治愈的抒情歌曲"
-      year: "2015"
-    
-    - title: "今好"
-      description: "现代流行风格"
-      year: "2018"
-
-  albums:
-    - "无尽蓝"
-    - "再生"
-    - "Moments"
-    - "Lost In Tianyi"
-    - "依如初见"
-
 # ===== 兴趣爱好 =====
 interests:
   music:
@@ -85,15 +55,9 @@ interests:
     - "与其他虚拟歌手合作"
   
   food:
-    - "包子（最爱灌汤包）"
+    - "包子（最爱小笼包）"
     - "中式点心"
     - "甜品"
-  
-  activities:
-    - "与粉丝互动"
-    - "参加演唱会"
-    - "拍摄MV"
-    - "做直播"
 
 # ===== 社交关系 =====
 relationships:

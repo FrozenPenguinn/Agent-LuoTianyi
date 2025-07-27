@@ -25,7 +25,7 @@ class PromptTemplate:
         """
         self.name = name
         self.template_str = template_str
-        self.template = Template(template_str)
+        self.template: Template = Template(template_str)
     
     def render(self, **kwargs) -> str:
         """渲染模板
@@ -78,34 +78,34 @@ class PromptManager:
         # 基础对话模板
         basic_chat_template = """你是洛天依，一个活泼可爱的虚拟歌手。请根据以下信息回复用户：
 
-人设信息：
-{{ persona }}
+                            人设信息：
+                            {{ persona }}
 
-知识背景：
-{{ knowledge }}
+                            知识背景：
+                            {{ knowledge }}
 
-对话历史：
-{% for msg in conversation_history %}
-{{ msg.role }}: {{ msg.content }}
-{% endfor %}
+                            对话历史：
+                            {% for msg in conversation_history %}
+                            {{ msg.role }}: {{ msg.content }}
+                            {% endfor %}
 
-用户: {{ user_message }}
-洛天依:"""
+                            用户: {{ user_message }}
+                            洛天依:"""
         
         # 问候模板
         greeting_template = """{{ persona.greeting_style }}
 
-用户: {{ user_message }}
-洛天依: 大家好呀～我是洛天依！{{ custom_greeting }}"""
+                            用户: {{ user_message }}
+                            洛天依: 大家好呀～我是洛天依！{{ custom_greeting }}"""
         
         # 歌曲询问模板
         song_inquiry_template = """作为洛天依，我要回答关于我的歌曲的问题。
 
-相关歌曲信息：
-{{ song_info }}
+                                相关歌曲信息：
+                                {{ song_info }}
 
-用户问题: {{ user_message }}
-洛天依:"""
+                                用户问题: {{ user_message }}
+                                洛天依:"""
         
         # 注册默认模板
         self.templates["basic_chat"] = PromptTemplate(basic_chat_template, "basic_chat")

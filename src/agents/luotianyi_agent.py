@@ -11,7 +11,7 @@ import os
 
 from ..llm.siliconflow_client import SiliconFlowClient
 from ..knowledge.graph_retriever import GraphRetriever
-from ..knowledge.vector_store import VectorStore
+from ..knowledge.vector_store import VectorStoreFactory, VectorStore
 from ..llm.prompt_manager import PromptManager
 from .conversation_manager import ConversationManager
 from ..utils.logger import get_logger
@@ -65,23 +65,67 @@ class LuoTianyiAgent(BaseAgent):
         Returns:
             配置字典
         """
-        # TODO: 实现配置文件加载逻辑
-        # - 读取YAML配置文件
-        # - 处理环境变量替换
-        # - 验证配置格式
+        if not os.path.exists(config_path):
+            self.logger.error(f"配置文件不存在: {config_path}")
+            raise FileNotFoundError(f"配置文件不存在: {config_path}")
+        with open(config_path, 'r', encoding='utf-8') as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                self.logger.error(f"加载配置文件失败 {config_path}: {e}")
+                raise ValueError(f"配置文件格式错误: {config_path}")
+            # 处理环境变量替换
+            config = self._apply_env_variables(config)
+            # 验证配置格式
+            self._validate_config_format(config)
+            return config
+    def _apply_env_variables(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """应用环境变量替换配置中的变量
+        
+        Args:
+            config: 配置字典
+            
+        Returns:
+            替换后的配置字典
+        """
+        for key, value in config.items():
+            if isinstance(value, str) and value.startswith("$"):
+                env_var = value[1:]
+                env_value = os.environ.get(env_var)
+                if env_value is not None:
+                    config[key] = env_value
+                else:
+                    self.logger.warning(f"环境变量未设置: {env_var}")
+        return config
+    def _validate_config_format(self, config: Dict[str, Any]) -> None:
+        """验证配置格式
+        
+        Args:
+            config: 配置字典
+            
+        Raises:
+            ValueError: 如果配置格式不正确
+        """
         pass
-    
+            
+
     def _load_persona(self) -> Dict[str, Any]:
         """加载人设配置
         
         Returns:
             人设配置字典
         """
-        # TODO: 实现人设配置加载
-        # - 从配置文件中读取persona_file路径
-        # - 加载洛天依人设YAML文件
-        # - 解析人设信息
-        pass
+        persona_file = self.config['agent'].get("persona_file", None)
+        if not persona_file or not os.path.exists(persona_file):
+            self.logger.error(f"人设文件不存在: {persona_file}")
+            raise FileNotFoundError(f"人设文件不存在: {persona_file}")
+        with open(persona_file, 'r', encoding='utf-8') as f:
+            try:
+                persona = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                self.logger.error(f"加载人设文件失败 {persona_file}: {e}")
+                raise ValueError(f"人设文件格式错误: {persona_file}")
+        return persona
     
     def _init_llm_client(self) -> SiliconFlowClient:
         """初始化LLM客户端
@@ -90,7 +134,11 @@ class LuoTianyiAgent(BaseAgent):
             LLM客户端实例
         """
         # TODO: 根据配置初始化硅基流动客户端
-        pass
+        llm_config = self.config.get("llm", {})
+        if not llm_config:
+            self.logger.error("LLM配置缺失，请检查配置文件")
+            raise ValueError("LLM配置缺失")
+        return SiliconFlowClient(llm_config)
     
     def _init_vector_store(self) -> VectorStore:
         """初始化向量存储
@@ -99,7 +147,11 @@ class LuoTianyiAgent(BaseAgent):
             向量存储实例
         """
         # TODO: 根据配置初始化向量数据库
-        pass
+        vector_config = self.config.get("knowledge", {}).get("vector_store", {})
+        if not vector_config:
+            self.logger.error("向量存储配置缺失，请检查配置文件")
+            raise ValueError("向量存储配置缺失")
+        return VectorStoreFactory.create_vector_store("chroma", vector_config)
     
     def _init_graph_retriever(self) -> GraphRetriever:
         """初始化图检索器
@@ -116,17 +168,22 @@ class LuoTianyiAgent(BaseAgent):
         Returns:
             Prompt管理器实例
         """
-        # TODO: 初始化Prompt模板管理
-        pass
-    
+        prompt_config = self.config.get("prompt", {})
+        if not prompt_config:
+            self.logger.error("Prompt管理器配置缺失，请检查配置文件")
+            raise ValueError("Prompt管理器配置缺失")
+        return PromptManager(prompt_config)
+
     def _init_conversation_manager(self) -> ConversationManager:
         """初始化对话管理器
         
         Returns:
             对话管理器实例
         """
-        # TODO: 初始化对话历史和上下文管理
-        pass
+        return ConversationManager(
+            memory_type=self.config.get("conversation", {}).get("memory_type", "buffer"),
+            memory_config=self.config.get("conversation", {}).get("memory", {})
+        )
     
     def chat(self, message: str, **kwargs) -> str:
         """处理用户消息并生成洛天依风格的回复

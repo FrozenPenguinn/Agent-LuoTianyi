@@ -44,6 +44,15 @@ agent:
     top_k: 5              # 检索文档数量
     similarity_threshold: 0.7  # 相似度阈值
 
+prompt:
+  template_dir: "prompts"  # 模板目录
+
+conversation:
+  memory_type: "buffer"    # 对话记忆类型：buffer/summary/kg
+  memory:                  # 对话记忆配置
+    size: 10               # 记忆窗口大小
+    summary_length: 200    # 摘要长度（仅在summary模式下有效）
+
 # ===== 多模态配置 =====
 multimodal:
   # TTS配置

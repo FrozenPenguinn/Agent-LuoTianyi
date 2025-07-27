@@ -26,10 +26,14 @@ class SiliconFlowClient:
         self.config = config
         
         # 初始化OpenAI客户端
-        self.client = OpenAI(
-            base_url=config.get("base_url", "https://api.siliconflow.cn/v1"),
-            api_key=config.get("api_key") or os.environ.get("SILICONFLOW_API_KEY")
-        )
+        try:
+            self.client = OpenAI(
+                base_url=config.get("base_url", "https://api.siliconflow.cn/v1"),
+                api_key=config.get("api_key") or os.environ.get("SILICONFLOW_API_KEY")
+            )
+        except Exception as e:
+            self.logger.error(f"初始化硅基流动客户端失败: {e}")
+            raise Exception(f"无法初始化硅基流动客户端: {e}")
         
         # 模型配置
         self.model = config.get("model", "deepseek-ai/DeepSeek-V2.5")
@@ -105,10 +109,6 @@ class SiliconFlowClient:
         Returns:
             请求参数字典
         """
-        # TODO: 实现参数构建逻辑
-        # - 合并默认配置和用户参数
-        # - 验证参数有效性
-        # - 处理特殊参数
         params = {
             "model": kwargs.get("model", self.model),
             "messages": messages,
