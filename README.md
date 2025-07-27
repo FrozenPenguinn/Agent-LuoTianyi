@@ -287,9 +287,9 @@ favorite_songs:
 
 ## 📞 联系方式
 
-- 项目地址：[GitHub Repository](https://github.com/your-username/Agent-LuoTianyi)
-- 问题反馈：[Issues](https://github.com/your-username/Agent-LuoTianyi/issues)
-- 讨论交流：[Discussions](https://github.com/your-username/Agent-LuoTianyi/discussions)
+- 项目地址：[GitHub Repository](https://github.com/SheepLiu712/Agent-LuoTianyi)
+- 问题反馈：[Issues](https://github.com/SheepLiu712/Agent-LuoTianyi/issues)
+- 讨论交流：[Discussions](https://github.com/SheepLiu712/Agent-LuoTianyi/discussions)
 
 ---
 
