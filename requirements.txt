@@ -1,0 +1,40 @@
+# 核心依赖
+langchain>=0.1.0
+langchain-community>=0.0.20
+openai>=1.0.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+pyyaml>=6.0
+
+# 向量数据库
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# 图数据库（可选）
+neo4j>=5.0.0
+py2neo>=2021.2.3
+
+# Web服务
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+streamlit>=1.28.0
+
+# 工具库
+requests>=2.31.0
+numpy>=1.24.0
+pandas>=2.0.0
+tqdm>=4.65.0
+
+# 日志和配置
+loguru>=0.7.0
+click>=8.1.0
+
+# 多模态扩展（可选）
+# gptsovits  # 需要手动安装
+# live2d-py  # 需要手动安装
+
+# 开发工具
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+pre-commit>=3.0.0
