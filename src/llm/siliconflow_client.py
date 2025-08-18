@@ -29,14 +29,14 @@ class SiliconFlowClient:
         try:
             self.client = OpenAI(
                 base_url=config.get("base_url", "https://api.siliconflow.cn/v1"),
-                api_key=config.get("api_key") or os.environ.get("SILICONFLOW_API_KEY")
+                api_key= config.get("api_key") or os.environ.get("SILICONFLOW_API_KEY")
             )
         except Exception as e:
             self.logger.error(f"初始化硅基流动客户端失败: {e}")
             raise Exception(f"无法初始化硅基流动客户端: {e}")
         
         # 模型配置
-        self.model = config.get("model", "deepseek-ai/DeepSeek-V2.5")
+        self.model = config.get("model", "Pro/deepseek-ai/DeepSeek-V3")
         self.temperature = config.get("temperature", 0.7)
         self.max_tokens = config.get("max_tokens", 1000)
         self.top_p = config.get("top_p", 0.9)
@@ -47,23 +47,26 @@ class SiliconFlowClient:
         
         self.logger.info(f"硅基流动客户端初始化完成，模型: {self.model}")
     
-    def chat(self, messages: List[Dict[str, str]], **kwargs) -> str:
+    def chat(self, messages: str, **kwargs) -> str:
         """发送聊天请求
         
         Args:
-            messages: 消息列表
-            **kwargs: 额外参数
-            
+            messages: 聊天prompt，字符串类型，仅包括聊天内容，不包括user
+            **kwargs: 额外参数，包括
+                - role: 用户角色，默认为"user"
+                - temperature: 生成文本的随机性，默认使用类初始化配置
+                - top_p: 采样的多样性，默认使用类初始化配置
+
         Returns:
             模型回复文本
         """
         try:
             # 合并参数
-            params = self._build_params(messages, **kwargs)
-            
+            params = self._build_params(messages, stream=False, **kwargs)
+
             # 发送请求
-            response = self._send_request(params)
-            
+            response = self._send_request(params["payload"], stream=False)
+
             # 提取回复内容
             content = self._extract_content(response)
             
@@ -74,8 +77,9 @@ class SiliconFlowClient:
             self.logger.error(f"LLM请求失败: {e}")
             raise
     
-    def chat_stream(self, messages: List[Dict[str, str]], **kwargs) -> Iterator[str]:
+    def chat_stream(self, messages: str, **kwargs) -> Iterator[str]:
         """流式聊天请求
+        当前未使用！
         
         Args:
             messages: 消息列表
@@ -89,8 +93,8 @@ class SiliconFlowClient:
             params = self._build_params(messages, stream=True, **kwargs)
             
             # 发送流式请求
-            response = self._send_request(params)
-            
+            response = self._send_request(params["payload"], stream=True)
+
             # 逐步返回内容
             for chunk in self._extract_stream_content(response):
                 yield chunk
@@ -98,33 +102,48 @@ class SiliconFlowClient:
         except Exception as e:
             self.logger.error(f"流式LLM请求失败: {e}")
             raise
-    
-    def _build_params(self, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+
+    def _build_params(self, messages: List[Dict[str, str]], stream: bool, **kwargs) -> Dict[str, Any]:
         """构建请求参数
         
         Args:
             messages: 消息列表
+            stream: 是否为流式请求
             **kwargs: 额外参数
             
         Returns:
-            请求参数字典
+            请求参数字典，包含payload和headers，用于适配requests库
+            如果使用openai库，只需要使用payload即可
         """
-        params = {
+        payload = {
             "model": kwargs.get("model", self.model),
-            "messages": messages,
+            "messages": [
+                {
+                    "role": kwargs.get("role", "user"),
+                    "content": messages
+                }
+            ],
             "temperature": kwargs.get("temperature", self.temperature),
             "max_tokens": kwargs.get("max_tokens", self.max_tokens),
             "top_p": kwargs.get("top_p", self.top_p),
-            "stream": kwargs.get("stream", False)
+            "stream": stream
+        }
+        headers = {
+            "Authorization": f"Bearer {self.config.get('api_key')}",
+            "Content-Type": "application/json"
         }
         
-        return params
+        return {
+            "payload": payload,
+            "headers": headers
+        }
     
-    def _send_request(self, params: Dict[str, Any]) -> Any:
+    def _send_request(self, params: Dict[str, Any], stream: bool) -> Any:
         """发送API请求（带重试）
         
         Args:
             params: 请求参数
+            stream: 是否为流式请求
             
         Returns:
             API响应
@@ -152,20 +171,34 @@ class SiliconFlowClient:
         
         # 所有重试都失败
         raise last_exception
-    
-    def _extract_content(self, response: Any) -> str:
+
+    def _extract_content(self, response) -> str:
         """提取响应内容
         
         Args:
             response: API响应
             
         Returns:
-            回复文本
+            回复文本，在无法提取内容时返回空字符串并记录错误日志
+
         """
         # TODO: 实现内容提取逻辑
         # - 处理不同类型的响应
         # - 提取文本内容
         # - 处理错误情况
+        # - 统计token usage，作为调试信息保存
+        try:
+            if hasattr(response, 'usage') and response.usage:
+                usage = response.usage
+                prompt_tokens = usage.prompt_tokens
+                completion_tokens = usage.completion_tokens
+                total_tokens = usage.total_tokens
+                self.logger.debug(f"Token usage - Prompt: {prompt_tokens}, Completion: {completion_tokens}, Total: {total_tokens}")
+            else:
+                self.logger.warning("无法获取token usage信息")
+
+        except:
+            self.logger.error("无法获取token usage信息")
         
         try:
             if hasattr(response, 'choices') and response.choices:

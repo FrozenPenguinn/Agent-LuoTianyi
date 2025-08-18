@@ -10,14 +10,22 @@ if errorlevel 1 (
 )
 
 :: 检查是否存在虚拟环境
-if not exist venv (
-    echo 创建虚拟环境...
-    python -m venv venv
+:: 检查是否在conda环境
+setlocal enabledelayedexpansion
+if defined CONDA_DEFAULT_ENV (
+    echo 已检测到conda环境 [!CONDA_DEFAULT_ENV!]，跳过venv创建与激活
+) else (
+    if not exist venv (
+        echo 创建虚拟环境...
+        python -m venv venv
+    )
+    echo 激活虚拟环境...
+    call venv\Scripts\activate.bat
 )
+endlocal
 
 :: 激活虚拟环境
-echo 激活虚拟环境...
-call venv\Scripts\activate.bat
+:: （已合并到上方conda/venv判断逻辑）
 
 :: 安装依赖
 echo 安装项目依赖...

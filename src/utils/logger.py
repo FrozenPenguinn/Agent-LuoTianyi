@@ -16,7 +16,7 @@ import colorlog
 # 全局日志配置
 _LOGGER_INSTANCES: Dict[str, logging.Logger] = {}
 _DEFAULT_CONFIG = {
-    "level": "INFO",
+    "level": "DEBUG",
     "format": "{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function}:{line} - {message}",
     "file": "./logs/agent.log",
     "rotation": "100 MB",

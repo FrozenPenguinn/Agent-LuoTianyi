@@ -181,7 +181,7 @@ class PromptManager:
             "basic_chat": "basic_chat"
         }
         
-        return intent_template_map.get(intent, "basic_chat")
+        return intent_template_map.get(intent, "daily_chat_prompt")
     
     def add_template(self, name: str, template_str: str) -> None:
         """添加新模板

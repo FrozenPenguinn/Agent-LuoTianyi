@@ -9,6 +9,10 @@ from abc import ABC, abstractmethod
 import yaml
 import os
 
+import yaml
+from jinja2 import Template
+from datetime import datetime
+
 from ..llm.siliconflow_client import SiliconFlowClient
 from ..knowledge.graph_retriever import GraphRetriever
 from ..knowledge.vector_store import VectorStoreFactory, VectorStore
@@ -79,24 +83,34 @@ class LuoTianyiAgent(BaseAgent):
             # 验证配置格式
             self._validate_config_format(config)
             return config
-    def _apply_env_variables(self, config: Dict[str, Any]) -> Dict[str, Any]:
-        """应用环境变量替换配置中的变量
-        
+    def _apply_env_variables(self, config: Any, parent_key: str = "") -> Any:
+        """递归应用环境变量替换配置中的变量，支持多层嵌套
         Args:
-            config: 配置字典
-            
+            config: 配置字典或列表或值
+            parent_key: 当前递归的父键路径
         Returns:
-            替换后的配置字典
+            替换后的配置
         """
-        for key, value in config.items():
-            if isinstance(value, str) and value.startswith("$"):
-                env_var = value[1:]
-                env_value = os.environ.get(env_var)
-                if env_value is not None:
-                    config[key] = env_value
-                else:
-                    self.logger.warning(f"环境变量未设置: {env_var}")
-        return config
+        if isinstance(config, dict):
+            for key, value in config.items():
+                full_key = f"{parent_key}.{key}" if parent_key else key
+                config[key] = self._apply_env_variables(value, full_key)
+            return config
+        elif isinstance(config, list):
+            return [self._apply_env_variables(item, f"{parent_key}[{i}]") for i, item in enumerate(config)]
+        elif isinstance(config, str) and config.startswith("$"):
+            env_var = config[1:]
+            if env_var.startswith("{") and env_var.endswith("}"):
+                env_var = env_var[1:-1]
+            env_value = os.environ.get(env_var)
+            if env_value is not None:
+                self.logger.debug(f"环境变量替换: {parent_key} -> {env_var} = {env_value}")
+                return env_value
+            else:
+                self.logger.warning(f"环境变量未设置: {env_var} (路径: {parent_key})")
+                return config
+        else:
+            return config
     def _validate_config_format(self, config: Dict[str, Any]) -> None:
         """验证配置格式
         
@@ -203,11 +217,14 @@ class LuoTianyiAgent(BaseAgent):
             
             # 2. 知识检索
             retrieved_knowledge = self._retrieve_knowledge(message, intent_result)
-            
-            # 3. 生成回复
-            response = self._generate_response(message, intent_result, retrieved_knowledge)
-            
-            # 4. 更新对话历史
+
+            # 3. 检索对话历史
+            history = self.get_conversation_history(type="short")
+
+            # 4. 生成回复（增加history参数）
+            response = self._generate_response(message, intent_result, retrieved_knowledge, history)
+
+            # 5. 更新对话历史
             self._update_conversation_history(message, response)
             
             self.logger.info(f"生成回复: {response}")
@@ -230,7 +247,7 @@ class LuoTianyiAgent(BaseAgent):
         # - 使用NLP工具进行分词和实体识别
         # - 分类用户意图（问候、询问歌曲、日常聊天等）
         # - 提取关键实体信息
-        pass
+        return "chat"
     
     def _retrieve_knowledge(self, message: str, intent_result: Dict[str, Any]) -> Dict[str, Any]:
         """检索相关知识
@@ -246,26 +263,32 @@ class LuoTianyiAgent(BaseAgent):
         # - 根据意图和实体进行向量检索
         # - 使用图结构进行多跳推理
         # - 合并和排序检索结果
-        pass
+        return {
+            "long_memory": [""],
+            "knowledge": [""],
+            "persona": [""],
+        }
     
-    def _generate_response(self, message: str, intent_result: Dict[str, Any], 
-                          knowledge: Dict[str, Any]) -> str:
+    def _generate_response(self, message: str, intent_result: Dict[str, Any],
+                          knowledge: Dict[str, Any], history: Optional[List[Dict[str, str]]] = None) -> str:
         """生成洛天依风格的回复
         
         Args:
             message: 用户消息
             intent_result: 意图分析结果
             knowledge: 检索到的知识
-            
+            history: 对话历史
         Returns:
             生成的回复文本
         """
-        # TODO: 实现回复生成逻辑
-        # - 构建包含人设和知识的Prompt
-        # - 调用LLM生成回复
-        # - 后处理确保风格一致性
-        pass
-    
+        # 示例：读取并填充 daily_chat_prompt.yaml
+        persona = self.get_persona(needed_labels=["basic_info", "personality"])
+        prompt = self.prompt_manager.build_conversation_prompt(message, persona=persona, knowledge=knowledge, conversation_history=history)
+        response = self.llm_client.chat(prompt)
+
+        # 4. 示例返回 prompt（实际应用应调用LLM生成回复）
+        return response
+
     def _update_conversation_history(self, user_message: str, bot_response: str) -> None:
         """更新对话历史
         
@@ -291,15 +314,21 @@ class LuoTianyiAgent(BaseAgent):
         # - 清空对话历史
         # - 重置上下文状态
         self.logger.info("对话状态已重置")
-    
-    def get_conversation_history(self) -> List[Dict[str, str]]:
+
+    def get_conversation_history(self, type: str = "short") -> List[Dict[str, str]]:
         """获取对话历史
-        
+
+        Args:
+            type: 历史类型，支持"short"和"full"
+
         Returns:
             对话历史列表
         """
         # TODO: 返回对话历史
-        pass
+        return {
+            "topic": [],
+            "content": [],
+        }
     
     def update_persona(self, persona_updates: Dict[str, Any]) -> None:
         """更新人设配置
@@ -309,3 +338,14 @@ class LuoTianyiAgent(BaseAgent):
         """
         # TODO: 实现人设动态更新
         pass
+
+    def get_persona(self, needed_labels: List[str]) -> Dict[str, Any]:
+        """获取人设信息
+
+        Args:
+            needed_labels: 需要的人设标签
+
+        Returns:
+            人设信息字典
+        """
+        return {label: self.persona.get(label) for label in needed_labels}
