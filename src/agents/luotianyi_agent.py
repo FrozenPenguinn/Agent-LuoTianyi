@@ -74,13 +74,12 @@ class LuoTianyiAgent(BaseAgent):
             raise FileNotFoundError(f"配置文件不存在: {config_path}")
         with open(config_path, 'r', encoding='utf-8') as f:
             try:
-                config = yaml.safe_load(f)
-            except yaml.YAMLError as e:
+                import json
+                config = json.load(f)
+            except Exception as e:
                 self.logger.error(f"加载配置文件失败 {config_path}: {e}")
                 raise ValueError(f"配置文件格式错误: {config_path}")
-            # 处理环境变量替换
             config = self._apply_env_variables(config)
-            # 验证配置格式
             self._validate_config_format(config)
             return config
     def _apply_env_variables(self, config: Any, parent_key: str = "") -> Any:
@@ -135,8 +134,9 @@ class LuoTianyiAgent(BaseAgent):
             raise FileNotFoundError(f"人设文件不存在: {persona_file}")
         with open(persona_file, 'r', encoding='utf-8') as f:
             try:
-                persona = yaml.safe_load(f)
-            except yaml.YAMLError as e:
+                import json
+                persona = json.load(f)
+            except Exception as e:
                 self.logger.error(f"加载人设文件失败 {persona_file}: {e}")
                 raise ValueError(f"人设文件格式错误: {persona_file}")
         return persona

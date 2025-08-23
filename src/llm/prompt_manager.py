@@ -6,7 +6,7 @@ Prompt模板管理器
 
 from typing import Dict, List, Optional, Any
 import os
-import yaml
+import json
 from pathlib import Path
 from jinja2 import Template, Environment, FileSystemLoader
 
@@ -80,20 +80,20 @@ class PromptManager:
             self.logger.warning(f"模板目录不存在: {template_dir}")
             return
         
-        for file_path in template_path.glob("*.yaml"):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    template_data = yaml.safe_load(f)
-                
-                name = template_data.get("name", file_path.stem)
-                template_str = template_data.get("template", "")
-                
-                if template_str:
-                    self.templates[name] = PromptTemplate(template_str, name)
-                    self.logger.info(f"加载模板: {name}")
+        for file_path in template_path.glob("*.json"):
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        template_data = json.load(f)
                     
-            except Exception as e:
-                self.logger.error(f"加载模板文件失败 {file_path}: {e}")
+                    name = template_data.get("name", file_path.stem)
+                    template_str = template_data.get("template", "")
+                    
+                    if template_str:
+                        self.templates[name] = PromptTemplate(template_str, name)
+                        self.logger.info(f"加载模板: {name}")
+                        
+                except Exception as e:
+                    self.logger.error(f"加载模板文件失败 {file_path}: {e}")
     
     def get_template(self, name: str) -> Optional[PromptTemplate]:
         """获取模板

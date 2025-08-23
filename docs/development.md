@@ -10,7 +10,7 @@
 python --version
 ```
 目前开发版本为3.10，因此模块的可用性仅在3.10及以上版本得到保证。
-
+3. 复制 `config/config.json.template` 为 `config/config.json`
 #### 虚拟环境（推荐）
 ```bash
 # 创建虚拟环境
@@ -18,7 +18,6 @@ python -m venv venv
 
 # 激活虚拟环境
 # Windows
-venv\Scripts\activate
 # Linux/Mac
 source venv/bin/activate
 ```

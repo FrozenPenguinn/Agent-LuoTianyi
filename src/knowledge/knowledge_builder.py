@@ -6,7 +6,6 @@
 
 from typing import Dict, List, Optional, Any, Union
 import json
-import yaml
 import os
 from pathlib import Path
 import pandas as pd
@@ -84,8 +83,6 @@ class KnowledgeBuilder:
             
             if suffix == ".json":
                 self._process_json_file(file_path)
-            elif suffix == ".yaml" or suffix == ".yml":
-                self._process_yaml_file(file_path)
             elif suffix == ".csv":
                 self._process_csv_file(file_path)
             elif suffix == ".txt" or suffix == ".md":
@@ -121,27 +118,7 @@ class KnowledgeBuilder:
         except Exception as e:
             self.logger.error(f"处理JSON文件失败 {file_path}: {e}")
     
-    def _process_yaml_file(self, file_path: Path) -> None:
-        """处理YAML文件
-        
-        Args:
-            file_path: YAML文件路径
-        """
-        # TODO: 实现YAML文件处理逻辑
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = yaml.safe_load(f)
-            
-            category = self._infer_category(file_path, data)
-            
-            if isinstance(data, list):
-                for item in data:
-                    self._add_knowledge_item(item, category, str(file_path))
-            elif isinstance(data, dict):
-                self._add_knowledge_item(data, category, str(file_path))
-                
-        except Exception as e:
-            self.logger.error(f"处理YAML文件失败 {file_path}: {e}")
+    # YAML文件处理已移除，仅支持JSON/CSV/TXT/MD
     
     def _process_csv_file(self, file_path: Path) -> None:
         """处理CSV文件

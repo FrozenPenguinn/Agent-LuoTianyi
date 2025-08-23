@@ -7,7 +7,7 @@
 import os
 import sys
 import json
-import yaml
+## 移除yaml支持，只保留json
 import hashlib
 import time
 import uuid
@@ -34,9 +34,7 @@ def load_config(config_path: str, default_config: Optional[Dict] = None) -> Dict
     
     try:
         with open(config_file, 'r', encoding='utf-8') as f:
-            if config_file.suffix.lower() in ['.yaml', '.yml']:
-                file_config = yaml.safe_load(f)
-            elif config_file.suffix.lower() == '.json':
+            if config_file.suffix.lower() == '.json':
                 file_config = json.load(f)
             else:
                 raise ValueError(f"不支持的配置文件格式: {config_file.suffix}")

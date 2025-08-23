@@ -102,9 +102,9 @@ Agent-LuoTianyi/
 ├── LICENSE                   # MIT许可证
 ├── requirements.txt          # Python依赖
 ├── config/                   # 配置文件
-│   ├── config.yaml          # 主配置文件
-│   ├── persona.yaml         # 洛天依人设配置
-│   └── prompts/             # Prompt模板
+│   ├── config.json          # 主配置文件
+│   ├── persona.json         # 洛天依人设配置
+│   └── prompts/             # Prompt模板（全部为json）
 ├── src/                     # 源代码
 │   ├── __init__.py
 │   ├── agents/              # Agent核心逻辑
@@ -198,7 +198,7 @@ pip install -r requirements.txt
 ```bash
 # 复制模板文件
 cp .env.template .env
-cp config/config.yaml.template config/config.yaml
+cp config/config.json.template config/config.json
 
 # 编辑配置文件，填入您的API密钥
 ```
@@ -241,44 +241,48 @@ print(response)
 
 ## 🔧 配置说明
 
-### 主配置文件 (`config/config.yaml`)
-```yaml
-# 大模型配置
-llm:
-  provider: "siliconflow"
-  model: "deepseek-chat"
-  api_key: "${SILICONFLOW_API_KEY}"
-  temperature: 0.7
-
-# 知识库配置
-knowledge:
-  vector_store: "chroma"
-  graph_store: "neo4j"
-  embedding_model: "text-embedding-3-small"
-
-# Agent配置
-agent:
-  persona_file: "config/persona.yaml"
-  memory_size: 10
-  response_max_tokens: 500
+### 主配置文件 (`config/config.json`)
+```json
+{
+  "llm": {
+    "provider": "siliconflow",
+    "model": "deepseek-chat",
+    "api_key": "${SILICONFLOW_API_KEY}",
+    "temperature": 0.7
+  },
+  "knowledge": {
+    "vector_store": "chroma",
+    "graph_store": "neo4j",
+    "embedding_model": "text-embedding-3-small"
+  },
+  "agent": {
+    "persona_file": "config/persona.json",
+    "memory_size": 10,
+    "response_max_tokens": 500
+  }
+}
 ```
 
-### 人设配置 (`config/persona.yaml`)
-```yaml
-name: "洛天依"
-personality:
-  traits: ["活泼", "可爱", "有亲和力", "略带调皮"]
-  speaking_style: "亲切自然，偶尔使用可爱的语气词"
-  
-background:
-  - "Vocaloid虚拟歌手"
-  - "代表色为灰绿色"
-  - "喜欢唱歌和与粉丝互动"
-  
 favorite_songs:
-  - "普通DISCO"
-  - "权御天下"
-  - "九九八十一"
+### 人设配置 (`config/persona.json`)
+```json
+{
+  "name": "洛天依",
+  "personality": {
+    "traits": ["活泼", "可爱", "有亲和力", "略带调皮"],
+    "speaking_style": "亲切自然，偶尔使用可爱的语气词"
+  },
+  "background": [
+    "Vocaloid虚拟歌手",
+    "代表色为灰绿色",
+    "喜欢唱歌和与粉丝互动"
+  ],
+  "favorite_songs": [
+    "普通DISCO",
+    "权御天下",
+    "九九八十一"
+  ]
+}
 ```
 
 ## 🧪 开发指南
@@ -294,7 +298,7 @@ favorite_songs:
 3. 参考 `examples/multimodal_demo.py` 进行测试
 
 ### 自定义Prompt模板
-在 `config/prompts/` 中添加新的模板文件，并在代码中引用。
+在 `config/prompts/` 中添加新的 json 模板文件，并在代码中引用。
 
 ## 🤝 贡献指南
 

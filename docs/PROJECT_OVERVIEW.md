@@ -46,12 +46,12 @@ Agent-LuoTianyi/
 │       └── helpers.py          # 辅助函数
 │
 ├── 📁 config/                  # 配置文件目录
-│   └── config.yaml.template    # 配置模板
+│   └── config.json.template    # 配置模板
 │
 ├── 📁 prompts/                 # 提示词模板
-│   ├── greeting.yaml           # 问候模板
-│   ├── song_inquiry.yaml       # 歌曲询问模板
-│   └── daily_chat.yaml         # 日常聊天模板
+│   ├── greeting.json           # 问候模板
+│   ├── song_inquiry.json       # 歌曲询问模板
+│   └── daily_chat.json         # 日常聊天模板
 │
 ├── 📁 data/                    # 数据目录
 │   ├── knowledge/              # 知识库文件
@@ -86,7 +86,7 @@ setup.bat   # Windows
 ### 2. 配置设置
 1. 复制 `.env.template` 为 `.env`
 2. 填入硅基流动API密钥
-3. 复制 `config/config.yaml.template` 为 `config/config.yaml`
+3. 复制 `config/config.json.template` 为 `config/config.json`
 4. 根据需要调整配置参数
 
 ### 3. 开发流程
