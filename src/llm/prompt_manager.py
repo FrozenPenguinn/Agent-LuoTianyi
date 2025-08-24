@@ -156,7 +156,7 @@ class PromptManager:
             "user_message": user_message,
             "persona": persona,
             "knowledge": knowledge or {},
-            "conversation_history": conversation_history or [],
+            "conversation_history": conversation_history or {},
             "current_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "intent": intent
         }

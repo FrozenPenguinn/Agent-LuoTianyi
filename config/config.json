@@ -42,13 +42,25 @@
     }
   },
   "prompt": {
-    "template_dir": "prompts"
+    "template_dir": "prompts/chat_agent_prompts"
   },
   "conversation": {
-    "memory_type": "buffer",
+    "memory_type": "summary",
     "memory": {
       "size": 10,
-      "summary_length": 200
+      "max_show_round": 4,
+      "max_store_round": 8,
+      "summary_length": 200,
+      "summary_llm": {
+        "provider": "siliconflow",
+        "model": "Qwen/Qwen3-32B",
+        "api_key": "$SILICONFLOW_API_KEY",
+        "base_url": "https://api.siliconflow.cn/v1",
+        "temperature": 0.7,
+        "max_tokens": 1000,
+        "top_p": 0.9            
+      },
+      "summary_prompt": "prompts/summary_agent_prompts/summary_prompt.json"
     }
   },
   "multimodal": {
